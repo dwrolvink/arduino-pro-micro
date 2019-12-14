@@ -1,6 +1,10 @@
-#include <Keyboard.h>    // This is a "built-in" library no need to install
+// Supported for Leonardo, Esplora, Zero, Due and MKR Family (incl Pro Micro)
+
+// This is a "built-in" library no need to install
+#include <Keyboard.h>   
 
 // Set which pins correspond to which keys
+// Be sure to route switches between pin and ground, as we do a pullup later on
 // this doubles as the id in "previously_pressed"
 #define KEY1   9
 #define KEY2   8
@@ -23,7 +27,9 @@ bool previously_pressed[10];
 
 void setup() 
 {
-  /*  Pullup means that the keyboard switches must be routed from a pin to ground
+  
+  /*  
+   *  Pullup means that the keyboard switches must be routed from a pin to ground
    *  Default output of any pin will be 1, when the key is pressed, the pin registers
    *  0. This is to get rid of noise, mostly.
    */ 
@@ -37,16 +43,16 @@ void setup()
   pinMode(KEY7,INPUT_PULLUP);  // sets pin 8 to input & pulls it high w/ internal resistor
   pinMode(KEY8,INPUT_PULLUP);  // sets pin 9 to input & pulls it high w/ internal resistor
   
-  
-  Serial.begin(9600);       // begin serial comms for debugging
-  Keyboard.begin();         //begin keyboard 
+  Serial.begin(9600);          // begin serial comms for debugging
+  Keyboard.begin();            // begin keyboard 
 }
 
 //---------------------------------------------------------
 //                           Loop
 //---------------------------------------------------------
 
-void loop() {
+void loop() 
+{
    // check each defined key, and press/release virtual key if warranted
    for (int i = 0; i <= sizeof(keys); i++) {  
       CheckKey(keys[i]);
