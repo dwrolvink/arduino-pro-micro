@@ -1,6 +1,8 @@
 // Supported for Leonardo, Esplora, Zero, Due and MKR Family (incl Pro Micro)
 
-// This is a "built-in" library no need to install
+// This is a "built-in" library no need to install on Windows
+// On linux, I *did* have to install it, by doing:
+// Tools > Manage Libraries > Search on Keyboard > Install "Keyboard by Arduino".
 #include <Keyboard.h>   
 
 // Set which pins correspond to which keys
@@ -145,5 +147,3 @@ void ReleaseKey(int id)
       break;                       
   }  
 }
-
-
