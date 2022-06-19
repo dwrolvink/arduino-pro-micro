@@ -22,12 +22,12 @@ const uint8_t key_values[3][81] = {
   },
   {
     KEY_TAB, KEY_LEFT_SHIFT,  KEY_LEFT_SHIFT, 'z', KEY_LEFT_CTRL, '!', KEY_LEFT_GUI, '!', '!', //0-8   KEY_LEFT_CTRL
-    KEY_ESC, '1', 'q', '!', 'r', 'x', 'c', 'v', KEY_DELETE, //9-17
+    KEY_ESC, '1', 'q', '!', 'r', 'x', '1', '2', KEY_DELETE, //9-17
     '3', '2', 'w', 'e', 's', 't', 'd', 'b', ' ', // 18-26
-    '6', '5', '4', 'p', 'g', '`', '[', ']', KEY_LEFT_ALT, // 27-35
+    '6', '5', '4', 'p', 'g', '`', '3', '4', KEY_LEFT_ALT, // 27-35
     KEY_INSERT, '\'', KEY_END, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, ',', '-', // 36-44
     KEY_F12, KEY_F11, ';', 'o', 'i', KEY_HOME, '/', 'm', '.', // 45-53
-    '0', KEY_F5, 'y', 'u', 'e', 'n', 'h', 'k', KEY_RETURN, // 54-62
+    '0', KEY_F5, 'y', 'u', 'e', '0', 'h', 'k', KEY_RETURN, // 54-62
     '7', '8', '9', 'l', 'j', KEY_PRINT_SCREEN, '=', 'f', '!', // 63-71
     '!', '!', '!', '!', '!', '!', '!', '!', '!', //  72-80
   },
@@ -38,7 +38,7 @@ const uint8_t key_values[3][81] = {
     '6', '5', '4', 'p', 'g', '`', '[', ']', KEY_LEFT_ALT, // 27-35
     KEY_INSERT, '\'', KEY_END, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, ',', '-', // 36-44
     KEY_F12, KEY_F11, ';', 'o', 'i', KEY_HOME, '/', 'm', '.', // 45-53
-    '3', '4', 'y', 'u', 'e', '0', 'h', 'k', KEY_RETURN, // 54-62
+    '3', '4', 'y', 'u', '6', '0', '5', 'k', KEY_RETURN, // 54-62
     '0', '1', '2', 'l', 'j', KEY_PRINT_SCREEN, '=', 'f', '!', // 63-71
     '!', '!', '!', '!', '!', '!', '!', '!', '!', //  72-80
   },
@@ -88,6 +88,12 @@ void setup()
   cmd[2][54] = 4;               // print passwd2
   cmd[2][55] = 4;               // print passwd3
   cmd[2][59] = 5;               // select current word
+  cmd[2][60] = 5;               // select current word (one to the left)
+  cmd[2][58] = 5;               // select current word (one to the right)
+  cmd[1][15] = 5;               // ctrl+c
+  cmd[1][16] = 5;               // ctrl+v    
+  cmd[1][33] = 5;               // {
+  cmd[1][34] = 5;               // }
   
   Serial.begin(9600);           // begin serial comms for debugging
   Keyboard.begin();             // begin keyboard
@@ -215,6 +221,7 @@ void MacroAction(int _cmd, int id, bool release){
   }
 }
 
+// Switch layers
 void Macro1(bool release){
   if (release){
     layer = 0;
@@ -233,6 +240,7 @@ void Macro2(bool release){
   }
 }
 
+// deprecated
 void Macro3(bool release){
   if (release){
     return;
@@ -245,6 +253,7 @@ void Macro3(bool release){
   }
 }
 
+// Print strings
 void Macro4(bool release, int id){
   Serial.println("macro4");
   Serial.println(PASSWD1);
@@ -268,19 +277,66 @@ void Macro4(bool release, int id){
   }
 }
 
-// select current word
+// Key combos
 void Macro5(bool release, int id){
   if (release){
     return;
   }
   else {
-    Keyboard.press(KEY_LEFT_CTRL); delay(1);
-    Keyboard.press(KEY_LEFT_ARROW); delay(1);
-    Keyboard.release(KEY_LEFT_ARROW); delay(1);
-    Keyboard.press(KEY_LEFT_SHIFT); delay(1);
-    Keyboard.press(KEY_RIGHT_ARROW); delay(1);
-    Keyboard.release(KEY_RIGHT_ARROW); delay(1);
-    Keyboard.release(KEY_LEFT_SHIFT); delay(1);
-    Keyboard.release(KEY_LEFT_CTRL);
+    const uint8_t keyvalue = key_values[layer][id]; 
+    if (keyvalue == '0'){                          // select inner word
+      Keyboard.press(KEY_LEFT_CTRL); delay(1);
+      Keyboard.press(KEY_LEFT_ARROW); delay(1);
+      Keyboard.release(KEY_LEFT_ARROW); delay(1);
+      Keyboard.press(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.press(KEY_RIGHT_ARROW); delay(1);
+      Keyboard.release(KEY_RIGHT_ARROW); delay(1);
+      Keyboard.release(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.release(KEY_LEFT_CTRL);
+    } 
+    else if (keyvalue == '5'){                          // select inner word + one to the left
+      Keyboard.press(KEY_LEFT_CTRL); delay(1);
+      Keyboard.write(KEY_LEFT_ARROW); delay(1);
+      Keyboard.write(KEY_LEFT_ARROW); delay(1);
+      Keyboard.press(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.press(KEY_RIGHT_ARROW); delay(1);
+      Keyboard.release(KEY_RIGHT_ARROW); delay(1);
+      Keyboard.release(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.release(KEY_LEFT_CTRL);
+    } 
+    else if (keyvalue == '6'){                          // select inner word + one to the right
+      Keyboard.press(KEY_LEFT_CTRL); delay(1);
+      Keyboard.write(KEY_RIGHT_ARROW); delay(1);
+      Keyboard.release(KEY_LEFT_CTRL); delay(1);
+      Keyboard.press(KEY_LEFT_CTRL); delay(1);
+      Keyboard.write(KEY_LEFT_ARROW); delay(1);
+      Keyboard.press(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.press(KEY_RIGHT_ARROW); delay(1);
+      Keyboard.release(KEY_RIGHT_ARROW); delay(1);
+      Keyboard.release(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.release(KEY_LEFT_CTRL);
+    }
+    else if (keyvalue == '1'){                     // ctrl+c          
+      Keyboard.press(KEY_LEFT_CTRL); delay(1);
+      Keyboard.write('c'); delay(1);
+      Keyboard.release(KEY_LEFT_CTRL);
+    } 
+    else if (keyvalue == '2'){                     // ctrl+v
+      Keyboard.press(KEY_LEFT_CTRL); delay(1);
+      Keyboard.write('v'); delay(1);
+      Keyboard.release(KEY_LEFT_CTRL);
+    } 
+    else if (keyvalue == '3'){                     // {
+      Keyboard.press(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.write('['); delay(1);                 
+      Keyboard.release(KEY_LEFT_SHIFT);
+    } 
+    else if (keyvalue == '4'){                     // }
+      Keyboard.press(KEY_LEFT_SHIFT); delay(1);
+      Keyboard.write(']'); delay(1);
+      Keyboard.release(KEY_LEFT_SHIFT);
+    } else {
+      Serial.println("CMD unknown");
+    }
   }
 }

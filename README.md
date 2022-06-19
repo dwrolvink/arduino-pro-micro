@@ -3,13 +3,16 @@
 In this repository there is some code for my custom keyboard. 
 
 ## Setup
-I use an arduino pro micro, but I have to select Arduino Leonardo in the Arduino IDE. On Linux I also have to start the IDE as sudo in order to be able to connect to the device on the port. (There are
-better ways, but I am lazy).
+I use an arduino pro micro, but I have to select Arduino Leonardo in the Arduino IDE. On Linux I also have to start the IDE as sudo in order to be able to connect to the device on the port. (There are better ways, but I am lazy).
 
 Then I have to 
 - Go to Tools>Manage Libraries and install Keyboard for the code to work. 
 - Go to Tools>Board>Board Manager and install Arduino AVR Boards to be able to select Arduino Leonardo.
 - A restart of the IDE, then select board Arduino Leonardo, and Tools>Port>(...) (Leonardo)
+
+Note: a better setup might be just adding the actual pro micro board: https://www.shellhacks.com/arduino-pro-micro-board-selection/
+
+Also a good resource: https://www.shellhacks.com/arduino-pro-micro-reset-restore-bootloader/
 
 ## Wiring of the switches
 ### Basics - one key
