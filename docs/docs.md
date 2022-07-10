@@ -4,7 +4,19 @@ B: brown
 C: black
 D: white
 E: gray
-F: gray
+F: purple
+G: blue
+H: green
+I: y
+
+# right
+A: brown 
+B: red
+C: orange
+D: y
+E: green
+F: blue
 G: purple
-H: blue
-I: green
+H: gray
+I: white
+
