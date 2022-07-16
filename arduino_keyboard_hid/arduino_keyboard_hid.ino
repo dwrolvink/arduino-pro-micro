@@ -6,23 +6,22 @@
 #include <Keyboard.h>
 #include "private.h"
 
-
-// macro's are defined below. set the key to a blank value ('!') when using a macro to skip the keypress/keyrelease functions.
-const uint8_t key_values[4][81] = {
-  {
+// macro's are defined below. when a key is defined as a macro the default keystroke will not be executed.
+const PROGMEM uint8_t key_values[5][81] = {
+  { // layer 0
     KEY_TAB, KEY_BACKSPACE,  KEY_LEFT_SHIFT, 'z', KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, KEY_RETURN, '!', //0-8   KEY_LEFT_CTRL
     KEY_ESC, '1', 'q', 'a', 'r', 'x', 'c', 'v', '!', //9-17
     '3', '2', 'w', 'f', 's', 't', 'd', 'b', ' ', // 18-26
     '6', '5', '4', 'p', 'g', '\\', '[', ']', KEY_BACKSPACE, // 27-35
     KEY_INSERT, '\"', KEY_END, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, KEY_HOME, '-', // 36-44
     KEY_F12, KEY_F11, ';', 'o', 'i', '.', 'd', 'm', KEY_LEFT_SHIFT, // 45-53
-    '-', KEY_F5, 'y', 'u', 'e', 'n', 'h', 'k', '!', // 54-62
+    '-', '\'', 'y', 'u', 'e', 'n', 'h', 'k', '!', // 54-62
     '7', '8', '9', 'l', 'j', 44, '`', '0', KEY_BACKSPACE, // 63-71
     '!', '!', '!', '!', '!', '!', '!', '!', '!', //  72-80
   }, 
-  {
+  { // layer 1 (right default)
     KEY_TAB, KEY_DELETE,  KEY_LEFT_SHIFT, 'z', KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, '.', '!', //0-8   KEY_LEFT_CTRL
-    KEY_ESC, '1', '?', '!', KEY_DELETE, 'x', '1', '2', '\'', //9-17
+    KEY_ESC, '1', '?', 'f', KEY_DELETE, 'x', '1', '2', '\'', //9-17
     '5', KEY_F2, '=', 'c', '/', KEY_TAB, 'a', '\'', ' ', // 18-26
     '6', '5', '4', ';', '_', '`', '3', '4', 'e', // 27-35
     KEY_INSERT, '\'', KEY_END, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, '`', '-', // 36-44
@@ -31,33 +30,45 @@ const uint8_t key_values[4][81] = {
     '7', '8', '9', KEY_HOME, 'j', KEY_PRINT_SCREEN, '=', '0', KEY_BACKSPACE, // 63-71  -_
     '!', '!', '!', '!', '!', '!', '!', '!', '!', //  72-80
   },
-  {
+  { // layer 2 (option)
     KEY_TAB, KEY_DELETE,  KEY_LEFT_SHIFT, 'z', KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, '!', '!', //0-8   KEY_LEFT_CTRL
-    KEY_ESC, '.', 'q', '!', 'r', 'x', 'c', 'v', KEY_BACKSPACE, //9-17
-    '3', KEY_F2, 'w', 'e', 's', 't', 'd', 'b', KEY_RETURN, // 18-26
+    KEY_ESC, '.', KEY_F14, '!', 'r', 'x', 'c', 'v', KEY_BACKSPACE, //9-17
+    '3', KEY_F2, KEY_F13, 'e', 's', 't', 'd', 'b', KEY_RETURN, // 18-26
     '6', '5', '4', '+', 'g', '`', '[', ']', '.', // 27-35
-    KEY_INSERT, '\'', KEY_PAGE_DOWN, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, '`', '-', // 36-44
-    KEY_F12, KEY_F11, ';', KEY_BACKSPACE, 'i', KEY_PAGE_UP, '\\', 'k', KEY_LEFT_SHIFT, // 45-53
+    '|', '\'', KEY_PAGE_DOWN, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, '`', '-', // 36-44
+    KEY_F12, KEY_F11, ';', KEY_BACKSPACE, 'i', KEY_PAGE_UP, '\\', KEY_F20, KEY_LEFT_SHIFT, // 45-53
     '1', '4', 'y', 'u', '6', '0', '5', 'k', 'k', // 54-62
-    '2', '3', '0', '9', 'j', KEY_PRINT_SCREEN, '=', '0', KEY_DELETE, // 63-71
+    '2', '3', '0', '9', 'j', KEY_PRINT_SCREEN, '-', '0', KEY_DELETE, // 63-71
     '!', '!', '!', '!', '!', '!', '!', '!', '!', //  72-80
   },
-  {
-    KEY_TAB, KEY_BACKSPACE,  KEY_LEFT_SHIFT, 'z', KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, KEY_RETURN, '!', //0-8   KEY_LEFT_CTRL
-    KEY_ESC, '1', 'q', 'a', 'r', 'x', 'c', 'v', '!', //9-17
-    '3', '2', 'w', 'f', 's', 'd', 'd', 'b', ' ', // 18-26
-    '6', '5', '4', '.', 'g', '\\', '[', ']', KEY_BACKSPACE, // 27-35
+  { // layer 3 (pinky)
+    KEY_TAB, KEY_DELETE,  KEY_LEFT_SHIFT, '9', KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, KEY_RETURN, '!', //0-8   KEY_LEFT_CTRL
+    KEY_ESC, ',', 'q', KEY_RETURN, 'r', '0', ',', '.', '!', //9-17
+    '3', '.', '[', ']', '\'', '\'', 'd', 'b', ' ', // 18-26
+    '6', '5', '4', '.', '/', '\\', '[', ']', KEY_BACKSPACE, // 27-35
     KEY_INSERT, '\"', KEY_END, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, '0', '-', // 36-44
     KEY_F12, KEY_F11, ';', '0', '6', '9', '8', '7', KEY_LEFT_SHIFT, // 45-53
-    '-', KEY_F5, '3', '2', '5', '4', 'h', 'k', '!', // 54-62
+    '-', KEY_F5, '3', '2', '5', '4', 'h', 'k', KEY_RETURN, // 54-62
     '7', '8', '9', '1', 'j', 44, '`', '0', KEY_BACKSPACE, // 63-71
+    '!', '!', '!', '!', '!', '!', '!', '!', '!', //  72-80
+  }, 
+  { // layer 4 (sticky)
+    KEY_TAB, KEY_BACKSPACE,  KEY_LEFT_SHIFT, 'z', KEY_LEFT_CTRL, KEY_LEFT_ALT, KEY_LEFT_GUI, KEY_RETURN, '!', //0-8   KEY_LEFT_CTRL
+    KEY_ESC, 's', 'q', 'a', 'r', 'x', 'c', 'v', '!', //9-17
+    '3', '2', 'w', 'f', 's', 't', 'd', 'b', ' ', // 18-26
+    '6', '5', '4', 'p', 'g', '\\', '[', ']', KEY_BACKSPACE, // 27-35
+    KEY_INSERT, '\"', KEY_END, KEY_UP_ARROW, KEY_RIGHT_ARROW, KEY_DOWN_ARROW, KEY_LEFT_ARROW, KEY_HOME, '-', // 36-44
+    KEY_F12, KEY_F11, ';', 'o', 'i', '.', 'd', 'm', KEY_LEFT_SHIFT, // 45-53
+    '-', '\'', 'y', 'u', 'e', 'n', 'h', 'k', '!', // 54-62
+    '7', '8', '9', 'l', 'j', 44, '`', '0', KEY_BACKSPACE, // 63-71
     '!', '!', '!', '!', '!', '!', '!', '!', '!', //  72-80
   }, 
 };
 int layer = 0;
-bool previously_pressed[4][81];
+bool previously_pressed[5][81];
 bool previously_pressed_global[81];
-int cmd[4][81]; // 0 is normal keypress/keyrelease, nonzero is macros
+bool sticky = 0;
+int cmd[5][81]; // 0 is normal keypress/keyrelease, nonzero is macros
 
 const uint8_t KEYVALUE_BLANK = '!';
 
@@ -73,7 +84,11 @@ const int row_pins[9] = {1, 0, 2, 3, 4, 5, 6, 7, 8};
 void setup()
 {
   // fail-safe, set to low to disable keyboard output
-  pinMode(18, INPUT);
+  //pinMode(18, INPUT);
+
+  // sticky led
+  pinMode(18, OUTPUT);
+  digitalWrite(18, LOW);
   
   // scan cols
   for (int c = 0; c < 8; c++) {
@@ -84,15 +99,17 @@ void setup()
   for (int r = 0; r < 9; r++) {
     pinMode(row_pins[r], INPUT);
   }  
-  
+
   // set macros
   cmd[0][62] = 1;               // switch to layer 1
   cmd[0][17] = 2;               // switch to layer 2
   cmd[0][35] = 6;               // switch to layer 3
+  cmd[0][37] = 6;               // switch to layer 3
+  cmd[2][10] = 8;               // switch to layer 4 (sticky)
   
   cmd[1][62] = 1;               // switch to layer 1
   //cmd[1][17]  = 2;               // switch to layer 2
-  cmd[1][12] = 3;               // ctrl+a (immediate release)
+  cmd[1][12] = 4;               // ctrl+a (immediate release)
 
   cmd[1][15] = 5;               // ctrl+c
   cmd[1][16] = 5;               // ctrl+v    
@@ -106,7 +123,7 @@ void setup()
   cmd[1][60] = 5;               // )
   cmd[1][21] = 5;               // :
   cmd[0][51] = 5;               // ", "
-  cmd[3][23] = 5;               // ", "
+  cmd[3][24] = 5;               // ", "
   
   //cmd[2][62] = 1;               // switch to layer 1
   cmd[2][17]  = 2;               // switch to layer 2
@@ -121,12 +138,18 @@ void setup()
   cmd[2][58] = 5;               // select current word (one to the right)
   cmd[2][66] = 5;               // select to home
 
-
+  cmd[3][15] = 7;               // shift of what is at that slot
+  cmd[3][16] = 7;               // shift of what is at that slot
+  cmd[3][20] = 7;               // shift of what is at that slot
+  cmd[3][21] = 7;               // shift of what is at that slot
+  cmd[3][23] = 7;               // shift of what is at that slot
+  cmd[3][3] = 7;               // shift of what is at that slot
+  cmd[3][14] = 7;               // shift of what is at that slot
     
   Serial.begin(9600);           // begin serial comms for debugging
   Keyboard.begin();             // begin keyboard
 }
-
+      
 //---------------------------------------------------------
 //                           Loop
 //---------------------------------------------------------
@@ -144,6 +167,16 @@ void loop()
     delay(1);
   }
   delay(5);
+}
+
+void SetSticky(bool state){
+  sticky = state;
+  if (state){
+    digitalWrite(18, HIGH);
+  }
+  else {
+    digitalWrite(18, LOW);
+  }
 }
 
 void CheckKey(int col, int row)
@@ -175,41 +208,46 @@ void KeyAction(int id, bool release)
   Serial.println("Keyaction:");
   Serial.println(id, DEC);
 
-  if (digitalRead(18) == 0){      // only act if fail-safe pin is high
-    return;
-  }
+  //if (digitalRead(18) == 0){      // only act if fail-safe pin is high
+  //  return;
+  //}
+
+  const uint8_t keyvalue = pgm_read_byte(&(key_values[layer][id]));
 
   if (release){
-    ReleaseKey(id);
+    ReleaseKey(id, keyvalue);
   } else {
-    KeyPress(id);
+    KeyPress(id, keyvalue);
   }
 }
 
-void KeyPress(int id){
-  previously_pressed[layer][id] = 1;
-  
+void KeyPress(int id, uint8_t keyvalue){
   const uint8_t _cmd = cmd[layer][id];
+  const int current_layer = layer;
+
   if (_cmd == 0){
-    
     // normal key press
-    const uint8_t keyvalue = key_values[layer][id];  
     if (keyvalue != KEYVALUE_BLANK) {
       Keyboard.press(keyvalue);
     }
-    
+    if (keyvalue == KEY_ESC){
+      layer = 0;
+      SetSticky(0);
+    }
   } else {
-    MacroAction(_cmd, id, 0);
+    MacroAction(_cmd, id, keyvalue, 0);
   }
+
+  previously_pressed[current_layer][id] = 1;
 }
 
 // If you pressed multiple keys during the PressKey phase, be sure to release them all here
 // You can also use Keyboard.releaseAll()
-void ReleaseKey(int id)
+void ReleaseKey(int id, uint8_t keyvalue)
 {
   // if the physical key was pressed last round, and is released now, then
   // go by each layer and find which virtual key was pressed, and release it
-  for (int l = 0; l < 4; l++) {
+  for (int l = 0; l < 5; l++) {
     if (previously_pressed[l][id]){
       
       // deactivate previously_pressed
@@ -219,18 +257,18 @@ void ReleaseKey(int id)
       const uint8_t _cmd = cmd[l][id];
       if (_cmd == 0){
         // normal key release
-        if (key_values[l][id] != KEYVALUE_BLANK) {
-          Keyboard.release(key_values[l][id]);
+        if (keyvalue != KEYVALUE_BLANK) {
+          Keyboard.release(keyvalue);
         }
       }
       else {
-        MacroAction(_cmd, id, 1);
+        MacroAction(_cmd, id, keyvalue, 1);
       }
     }
   }
 }
 
-void MacroAction(int _cmd, int id, bool release){
+void MacroAction(int _cmd, int id, uint8_t keyvalue, bool release){
   if (_cmd == 0){
     Serial.println("Error: function MacroAction called with _cmd=0");
   } 
@@ -241,12 +279,14 @@ void MacroAction(int _cmd, int id, bool release){
   } else if (_cmd == 6){
     Macro1(release, 3);
   } 
-  else if (_cmd == 3){
-    Macro3(release);
-  } else if (_cmd == 4){
-    Macro4(release, id);
+  else if (_cmd == 4){
+    Macro4(release, id, keyvalue);
   } else if (_cmd == 5){
-    Macro5(release, id);
+    Macro5(release, id, keyvalue);
+  } else if (_cmd == 7){
+    Macro7(release, id, keyvalue);
+  } else if (_cmd == 8){
+    MacroSetStickyLayer(release, 4);
   } else {
     Serial.println("CMD unknown");
   }
@@ -255,43 +295,34 @@ void MacroAction(int _cmd, int id, bool release){
 // Switch layers
 void Macro1(bool release, int layer_id){
   if (release){
-    layer = 0;
+    if (sticky == 0){
+      layer = 0;
+    }
   }
   else {
     layer = layer_id;
   }
 }
 
-void Macro6(bool release){
+// Switch layers (sticky)
+void MacroSetStickyLayer(bool release, int layer_id){
   if (release){
-    layer = 0;
+   
   }
   else {
-    layer = 1;
-  }
-}
-
-
-// deprecated
-void Macro3(bool release){
-  if (release){
-    return;
-  }
-  else {
-    Keyboard.press(KEY_LEFT_CTRL); delay(15);
-    Keyboard.press('a'); delay(15);
-    Keyboard.release('a'); delay(15);
-    Keyboard.release(KEY_LEFT_CTRL);
+    Serial.println("CMD sticky4 - 0");
+    layer = layer_id;
+    SetSticky(1);
   }
 }
 
 // Print strings
-void Macro4(bool release, int id){
+void Macro4(bool release, int id, uint8_t keyvalue){
   if (release){
     return;
   }
 
-  const uint8_t keyvalue = key_values[layer][id]; 
+  //const uint8_t keyvalue = key_values[layer][id]; 
   if (keyvalue == '0')
   {
     Keyboard.print(USERNM1);
@@ -366,16 +397,15 @@ void Macro4(bool release, int id){
     Keyboard.print("/git"); delay(5);
     Keyboard.write(KEY_RETURN);
   } 
-  
 }
 
 // Key combos
-void Macro5(bool release, int id){
+void Macro5(bool release, int id, uint8_t keyvalue){
   if (release){
     return;
   }
   else {
-    const uint8_t keyvalue = key_values[layer][id]; 
+    //const uint8_t keyvalue = key_values[layer][id]; 
     if (keyvalue == '0'){                          // select inner word
       Keyboard.press(KEY_LEFT_CTRL); delay(1);
       Keyboard.press(KEY_LEFT_ARROW); delay(1);
@@ -408,15 +438,15 @@ void Macro5(bool release, int id){
       Keyboard.release(KEY_LEFT_SHIFT); delay(1);
       Keyboard.release(KEY_LEFT_CTRL);
     }
-    else if (keyvalue == '1'){                     // ctrl+c          
-      Keyboard.press(KEY_LEFT_CTRL); delay(1);
-      Keyboard.write('c'); delay(1);
+    else if (keyvalue == '1'){                     // ctrl+insert        
+      Keyboard.press(KEY_LEFT_CTRL); delay(5);
+      Keyboard.write(KEY_INSERT); delay(5);
       Keyboard.release(KEY_LEFT_CTRL);
     } 
-    else if (keyvalue == '2'){                     // ctrl+v
-      Keyboard.press(KEY_LEFT_CTRL); delay(1);
-      Keyboard.write('v'); delay(1);
-      Keyboard.release(KEY_LEFT_CTRL);
+    else if (keyvalue == '2'){                     // shift+insert
+      Keyboard.press(KEY_LEFT_SHIFT); delay(5);
+      Keyboard.write(KEY_INSERT); delay(5);
+      Keyboard.release(KEY_LEFT_SHIFT);
     } 
     else if (keyvalue == '3'){                     // <
       Keyboard.press(KEY_LEFT_SHIFT); delay(1);
@@ -467,8 +497,26 @@ void Macro5(bool release, int id){
       Keyboard.write('`'); delay(5);
       Keyboard.release(KEY_LEFT_SHIFT);
     }
+    else if (keyvalue == 'f'){                     // :
+      Keyboard.press(KEY_LEFT_CTRL); delay(5);
+      Keyboard.write('a'); delay(5);
+      Keyboard.release(KEY_LEFT_CTRL);
+    }
     else {
       Serial.println("CMD unknown");
     }
+  }
+}
+
+// press shift before and after the keystroke
+void Macro7(bool release, int id, uint8_t keyvalue){
+  if (release){
+    return;
+  }
+  else {
+    //const uint8_t keyvalue = key_values[layer][id]; 
+    Keyboard.press(KEY_LEFT_SHIFT); delay(5);
+    Keyboard.write(keyvalue); delay(5);
+    Keyboard.release(KEY_LEFT_SHIFT);
   }
 }
