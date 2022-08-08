@@ -6,44 +6,6 @@
 #include <Keyboard.h>
 #include "private.h"
 
-// (Re)name bytes so we can have a nice key grid below
-#define ESC     0xB1
-#define F11     0xCC
-#define F12     0xCD
-#define F13     0xF0
-#define F14     0xF1
-#define F20     0xF7
-#define TAB     0xB3
-#define INS     0xD1
-#define BSP     0xB2
-#define DEL     0xD4
-#define KLS     0x81
-#define CTL     0x80
-#define KUA     0xDA
-#define KDA     0xD9
-#define KLA     0xD8
-#define KRA     0xD7
-#define HOM     0xD2
-#define END     0xD5
-#define ALT     0x82
-#define GUI     0x83
-#define RET     0xB0
-
-#define FN1    '!'
-#define OPT    '!'
-#define FN3    '!'
-#define MAC    '!' 
-
-// Macro magic numbers
-#define MC1    'd'  // ', '
-#define S2H    '9'  // select + home
-
-// shift macros (be sure to set the keys where these are used to macro 7)
-#define QUE    '/'
-#define COL    ';'
-#define PLS    '='
-#define TIL    '`'
-
 // The lookup table is used to convert custom scancodes to key values 
 // A scancode of a key (named "id" in code) is (col * 9) + row;
 // E.g.:  uint8_t key_value = key_value[key_lut[scancode]] (simplified)
@@ -54,52 +16,155 @@ const  uint8_t key_lut[72] = {
        50, 64,  7,  8,  9,         23, 22, 21, 35, 49,         63            // 61 - 71
 };
 
-const uint8_t KEYVALUE_BLANK = '!';
-
-// This array lists which keys should be handled by macros, and if so by which one
-// 0 is normal keypress/keyrelease, nonzero is macros
-int  cmd[5][72];    
+const uint8_t KEYVALUE_BLANK = '!'; 
 
 // Used to see whether a key is being pressed or released
 bool previously_pressed[5][72];
 bool previously_pressed_global[72]; 
 
+// (Re)name bytes so we can have a nice key grid below
+#define ESCAPE      0xB1
+#define F1          0xC2
+#define F2          0xC3
+#define F5          0xC6
+#define F11         0xCC
+#define F12         0xCD
+#define F13         0xF0
+#define F14         0xF1
+#define F15         0xF2
+#define VOL_DOWN    0xF3  // F16
+#define VOL_UP      0xF4  // F17
+#define F20         0xF7
+#define TAB         0xB3
+#define INS         0xD1
+#define BACKSP      0xB2
+#define DEL         0xD4
+#define LSHIFT      0x81
+#define CTL         0x80
+#define UP          0xDA
+#define DOWN        0xD9
+#define LEFT        0xD8
+#define RIGHT       0xD7
+#define HOME        0xD2
+#define END         0xD5
+#define ALT         0x82
+#define GUI         0x83
+#define RETURN      0xB0
+
+#define FN1         '!'
+#define OPTION      '!'
+#define FN3         '!'
+#define MAC         '!' 
+
+// Macro magic numbers
+#define COM001      'd'  // ', '
+#define SELECT2HOME '9'  // select + home
+#define TERM_COPY   '1'
+#define TERM_PASTE  '2'
+
+#define STR_KA_USER '0'
+#define STR_KA_PWD  '1'
+#define STR_ADM_USR '2'
+#define STR_ADM_PWD '3'
+#define STR_KP_PWD  '4'
+
+// shift macros (be sure to set the keys where these are used to macro 7)
+#define QUESTION_M  '/'
+#define COLUMN      ';'
+#define PLUS        '='
+#define TILDE       '`'
+
 // This array is typeset to have the same layout as the keyboard
 const PROGMEM uint8_t key_values[5][70] = {
   { // layer 0
-    ESC,    '1',    '2',    '3',    '4',    '5',    '6',                           '7',    '8',    '9',    '-',   '\'',    F11,    F12, 
-    TAB,    'q',    'w',    'f',    'p',    'g',   '\\',                           ',',    'j',    'l',    'u',    'y',   '\'',    INS,  
-    BSP,    'a',    'r',    's',    't',    'd',    '[',                           '`',    'h',    'n',    'e',    'i',    'o',    FN3, 
-    KLS,    'z',    'x',    'c',    'v',    'b',    ']',                           '0',    'k',    'm',    MC1,    '.',    KUA,    END, 
-    CTL,    ALT,    GUI,    RET,    OPT,    ' ',    FN3,                           BSP,    FN1,    KLS,    HOM,    KLA,    KDA,    KRA, 
-  }, 
+          ESCAPE,          '1',             '2',           '3',           '4',       '5',         '6',                                 '7',          '8',          '9',          '-',          '-',          F11,          F12, 
+             TAB,          'q',             'w',           'f',           'p',       'g',        '\\',                                 ',',          'j',          'l',          'u',          'y',         '\'',          INS,  
+          BACKSP,          'a',             'r',           's',           't',       'd',         '[',                                 '`',          'h',          'n',          'e',          'i',          'o',         '\'', 
+          LSHIFT,          'z',             'x',           'c',           'v',       'b',         ']',                                 '0',          'k',          'm',       COM001,         HOME,           UP,          END, 
+             CTL,          ALT,             GUI,        RETURN,        OPTION,       ' ',         FN3,                              BACKSP,          FN1,       LSHIFT,          '.',         LEFT,         DOWN,        RIGHT, 
+  },    
   { // layer 1 (right default)
-    ESC,    '1',    '2',    '3',    '4',    '5',    '6',                           '7',    '8',    '9',    '-',   '\'',    F11,    F12, 
-    TAB,    QUE,    '=',    COL,    ';',    'g',   '\\',                           ',',    'j',    'l',    'u',    'y',   '\'',    INS,  
-    DEL,    'a',    'r',    '/',    TAB,    '9',    '[',                           '`',    '0',    'n',    'e',    'i',    'o',    FN3, 
-    KLS,    'z',    'x',    'c',    'v',    'b',    ']',                           '0',    'k',    'm',    MC1,    '.',    KUA,    HOM, 
-    CTL,    ALT,    GUI,    RET,    OPT,    ' ',    TIL,                           BSP,    FN1,    KLS,    HOM,    KLA,    KDA,    KRA, 
+          ESCAPE,            F1,             F2,           '3',         '4',         '5',         '6',                                 '7',          '8',          '9',          '-',           F5,          F11,          F12, 
+             TAB,    QUESTION_M,            '=',        COLUMN,         ';',         'g',        '\\',                                 ',',          'j',          'l',          '\'',          'y',         '\'',          INS,  
+             DEL,           '9',            '0',           '/',      COLUMN,         '9',         '=',                                 '`',          '0',          '.',          ',',   QUESTION_M,          '0',         '\'', 
+          LSHIFT,           'z',            'x',     TERM_COPY,  TERM_PASTE,         'b',        PLUS,                                 '0',          'k',          'm',       COM001,          '.',           UP,          END, 
+             CTL,           ALT,            GUI,        RETURN,      OPTION,         ' ',       TILDE,                              BACKSP,          FN1,       LSHIFT,         HOME,         LEFT,         DOWN,        RIGHT, 
   },
   { // layer 2 (option)
-    ESC,    '1',    '2',    '3',    '4',    '5',    '6',                           '7',    '8',    '9',    '-',   '\'',    F11,    F12, 
-    TAB,    F14,    F13,    'f',    PLS,    'g',   '\\',                           ',',    'j',    S2H,    'u',    'y',   '\'',    INS,  
-    DEL,    'a',    'r',    's',    't',    'd',    '[',                           '`',    'h',    'n',    'e',    'i',    'o',    FN3, 
-    KLS,    'z',    'x',    'c',    'v',    'b',    ']',                           '0',    'k',    F20,    MC1,    '.',    KUA,    END, 
-    CTL,    ALT,    GUI,    RET,    OPT,    ' ',    FN3,                           BSP,    FN1,    KLS,    HOM,    KLA,    KDA,    KRA, 
+          ESCAPE,           '1',             F2,           '3',         '4',         '5',         '6',                         STR_KA_USER,   STR_KA_PWD,  STR_ADM_USR,  STR_ADM_PWD,   STR_KP_PWD,          F11,          F12, 
+             TAB,           F14,            F13,           'f',        PLUS,         'g',        '\\',                                 ',',          'j',  SELECT2HOME,           UP,          'y',         '\'',          INS,  
+             DEL,           '[',            ']',           's',         TAB,         'd',         '[',                                 '`',         HOME,         LEFT,         DOWN,        RIGHT,          END,          FN3, 
+          LSHIFT,           'z',            'x',           'c',         'v',         'b',         ']',                                 '0',          'k',       RETURN,       COM001,          '.',           UP,          END, 
+             CTL,           ALT,            GUI,        RETURN,      OPTION,         ' ',         FN3,                              BACKSP,       RETURN,       LSHIFT,         HOME,         LEFT,         DOWN,        RIGHT, 
   }, 
   { // layer 3 (pinky)
-    ESC,    '1',    '2',    '3',    '4',    '5',    '6',                           '7',    '8',    '9',    '-',   '\'',    F11,    F12, 
-    TAB,    'q',    'w',    'f',    'p',    'g',   '\\',                           ',',    'j',    'l',    'u',    'y',   '\'',    INS,  
-    DEL,    'a',    'r',    '\'',    '\'',    'd',    '[',                           '`',    'h',    'n',    'e',    'i',    'o',  FN3, 
-    KLS,    'z',    'x',    'c',    'v',    'b',    ']',                           '0',    'k',    'm',    MC1,    '.',    KUA,    END, 
-    CTL,    ALT,    GUI,    RET,    OPT,    ' ',    FN3,                           BSP,    FN1,    KLS,    HOM,    KLA,    KDA,    KRA, 
+          ESCAPE,          '1',             F2,           '3',         '4',         '5',          '6',                                 '7',          '8',          '9',          '-',           F5,     VOL_DOWN,       VOL_UP, 
+             TAB,          'q',            'w',           'f',         'p',         'g',         '\\',                                 ',',          'j',          'l',          'u',          'y',         '\'',          INS,  
+             DEL,          ',',            '.',          '\'',        '\'',         'd',          ',',                                 '`',          '3',       RETURN,          'e',          'i',          'o',        FN3, 
+          LSHIFT,          'z',            'x',           'c',         'v',         'b',          '.',                                 '0',          'k',          'm',       COM001,          '.',           UP,          END, 
+             CTL,           ALT,           GUI,        RETURN,      OPTION,         ' ',          FN3,                              BACKSP,       RETURN,       LSHIFT,         HOME,         LEFT,         DOWN,        RIGHT, 
+  },       
+  { // layer 4 (sticky)
+          ESCAPE,           '1',           '2',           '3',         '4',         '5',          '6',                                 '7',          '8',          '9',          '-',         '\'',          F11,          F12, 
+             TAB,           'q',           'w',           'f',         'p',         'g',         '\\',                                 ',',          'j',          'l',          'u',          'y',         '\'',          INS,  
+             DEL,           'a',           'r',           's',         't',         'd',          '[',                                 '`',          'h',          'n',          'e',          'i',          'o',          FN3, 
+          LSHIFT,           'z',           'x',           'c',         'v',         'b',          ']',                                 '0',          'k',          'm',       COM001,          '.',           UP,          END, 
+             CTL,           ALT,           GUI,        RETURN,      OPTION,         ' ',          FN3,                              BACKSP,          FN1,       LSHIFT,         HOME,         LEFT,         DOWN,        RIGHT, 
+  }
+};
+
+
+#define SETLAYER1   1
+#define SETLAYER2   2
+#define SETLAYER3   3
+#define SETLAYER4   4
+#define KEYCOMBO    5
+#define PRTSTRING   6
+#define SHIFTKEYV   7
+#define HYPER       8
+
+
+// This array lists which keys should be handled by macros, and if so by which one
+// 0 is normal keypress/keyrelease, nonzero is macros
+//int  cmd[5][72];   
+
+// This array lists which keys should be handled by macros, and if so by which one
+// 0 is normal keypress/keyrelease, nonzero is macros
+const PROGMEM byte cmd[5][70] = { 
+  { // layer 0
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,     KEYCOMBO,            0,            0,            0,            
+                0,            0,            0,            0,    SETLAYER2,            0,    SETLAYER3,                                   0,    SETLAYER1,            0,            0,            0,            0,            0,                   
+  }, 
+  { // layer 1 (right default)
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,    SHIFTKEYV,            0,    SHIFTKEYV,            0,            0,    SHIFTKEYV,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,    SHIFTKEYV,    SHIFTKEYV,            0,    SHIFTKEYV,    SHIFTKEYV,            0,                                   0,    SHIFTKEYV,            0,            0,    SHIFTKEYV,            0,    SHIFTKEYV,            
+                0,            0,            0,     KEYCOMBO,     KEYCOMBO,            0,    SHIFTKEYV,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,    SHIFTKEYV,                                   0,    SETLAYER1,            0,            0,            0,            0,            0,        
+  },
+  { // layer 2 (option)
+                0,    SETLAYER4,            0,            0,            0,            0,            0,                           PRTSTRING,    PRTSTRING,    PRTSTRING,    PRTSTRING,    PRTSTRING,            0,            0,            
+                0,            0,            0,            0,    SHIFTKEYV,            0,            0,                                   0,            0,     KEYCOMBO,            0,            0,            0,            0,            
+                0,            0,            0,        HYPER,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,         
+  }, 
+  { // layer 3 (pinky)
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,    SHIFTKEYV,    SHIFTKEYV,            0,    SHIFTKEYV,            0,    SHIFTKEYV,                                   0,    SHIFTKEYV,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,    SHIFTKEYV,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,   
   }, 
   { // layer 4 (sticky)
-    ESC,    '1',    '2',    '3',    '4',    '5',    '6',                           '7',    '8',    '9',    '-',   '\'',    F11,    F12, 
-    TAB,    'q',    'w',    'f',    'p',    'g',   '\\',                           ',',    'j',    'l',    'u',    'y',   '\'',    INS,  
-    DEL,    'a',    'r',    's',    't',    'd',    '[',                           '`',    'h',    'n',    'e',    'i',    'o',    FN3, 
-    KLS,    'z',    'x',    'c',    'v',    'b',    ']',                           '0',    'k',    'm',    MC1,    '.',    KUA,    END, 
-    CTL,    ALT,    GUI,    RET,    OPT,    ' ',    FN3,                           BSP,    FN1,    KLS,    HOM,    KLA,    KDA,    KRA, 
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,            
+                0,            0,            0,            0,            0,            0,            0,                                   0,    SETLAYER1,            0,            0,            0,            0,            0,       
   }
 };
 
@@ -136,48 +201,14 @@ void setup()
   }  
 
   // set macros
-  
-  cmd[0][62] = 1;               // switch to layer 1
-  cmd[0][17] = 2;               // switch to layer 2
-  cmd[0][35] = 6;               // switch to layer 3
-  cmd[0][37] = 6;               // switch to layer 3
-  cmd[2][10] = 8;               // switch to layer 4 (sticky)
-  cmd[2][17]  = 2;              // switch to layer 2
-  cmd[1][62] = 1;               // switch to layer 1
+//  cmd[1][12] = 4;               // ctrl+a (immediate release)
+//  cmd[1][18] = 4;               // print cd ~/git <return>
 
-  cmd[1][12] = 4;               // ctrl+a (immediate release)
-  cmd[1][18] = 4;               // print cd ~/git <return>
-  
-  cmd[2][63] = 4;               // print usernm1
-  cmd[2][64] = 4;               // print passwd1
-  cmd[2][65] = 4;               // print usernm2
-  cmd[2][54] = 4;               // print passwd2
-  cmd[2][55] = 4;               // print passwd3
-  
-  cmd[1][15] = 5;               // ctrl+c
-  cmd[1][16] = 5;               // ctrl+v    
-  cmd[1][33] = 5;               // <
-  cmd[1][34] = 5;               // >
-  cmd[2][59] = 5;               // select current word
-  cmd[2][60] = 5;               // select current word (one to the left)
-  cmd[2][58] = 5;               // select current word (one to the right)
-  cmd[2][66] = 5;               // select to home
-  cmd[0][51] = 5;               // ", "
-
-  // shift of what is at that slot
-  cmd[1][21] = 7;               
-  cmd[1][11] = 7;               
-  cmd[1][24] = 7;              
-  cmd[1][60] = 7;             
-  cmd[2][30] = 7;               
-  cmd[3][15] = 7;               
-  cmd[3][16] = 7;               
-  cmd[3][20] = 7;               
-  cmd[3][21] = 7;               
-  cmd[3][23] = 7;               
-  cmd[3][3] = 7;                
-  cmd[3][14] = 7;    
-  cmd[1][35] = 7;               // ~           
+//  cmd[2][59] = 5;               // select current word
+//  cmd[2][60] = 5;               // select current word (one to the left)
+//  cmd[2][58] = 5;               // select current word (one to the right)
+//  cmd[2][66] = 5;               // select to home
+//  cmd[0][51] = 5;               // ", "
   
   Serial.begin(9600);           // begin serial comms for debugging
   Keyboard.begin();             // begin keyboard
@@ -221,12 +252,13 @@ void CheckKey(int col, int row)
 
   // get the key value
   uint8_t keyvalue = GetKeyVal(id, layer);
+  const byte _cmd = GetCmd(id, layer);
 
   // press the virtual button
   if (is_pressed_now && !(active)) {
     Serial.println("Keyaction:");
     Serial.println(id, DEC);
-    KeyPress(id, keyvalue);
+    KeyPress(id, keyvalue, _cmd);
   }
   // release the virtual button
   else if (!(is_pressed_now) && active) {
@@ -234,8 +266,7 @@ void CheckKey(int col, int row)
   }
 }
 
-void KeyPress(int id, uint8_t keyvalue){
-  const uint8_t _cmd = cmd[layer][id];
+void KeyPress(int id, uint8_t keyvalue, byte _cmd){
   const int current_layer = layer;
 
   if (_cmd == 0){
@@ -254,21 +285,6 @@ void KeyPress(int id, uint8_t keyvalue){
   previously_pressed[current_layer][id] = 1;
 }
 
-uint8_t GetKeyVal(int id, int l){
-  uint8_t key_value_index = key_lut[id];
-  return pgm_read_byte(&(key_values[l][key_value_index]));
-}
-
-void SetSticky(bool state){
-  sticky = state;
-  if (state){
-    digitalWrite(18, HIGH);
-  }
-  else {
-    digitalWrite(18, LOW);
-  }
-}
-
 // If you pressed multiple keys during the PressKey phase, be sure to release them all here
 // You can also use Keyboard.releaseAll()
 void ReleaseKey(int id, uint8_t keyvalue)
@@ -282,17 +298,37 @@ void ReleaseKey(int id, uint8_t keyvalue)
       previously_pressed[l][id] = 0;
       
       // check if macro
-      const uint8_t _cmd = cmd[l][id];
-      if (_cmd == 0){
+      const byte c_cmd = GetCmd(id, l);
+      if (c_cmd == 0){
         // normal key release
         if (keyvalue != KEYVALUE_BLANK) {
           Keyboard.release(GetKeyVal(id, l));
         }
       }
       else {
-        MacroAction(_cmd, id, keyvalue, 1);
+        MacroAction(c_cmd, id, keyvalue, 1);
       }
     }
+  }
+}
+
+uint8_t GetKeyVal(int id, int l){
+  uint8_t key_value_index = key_lut[id];
+  return pgm_read_byte(&(key_values[l][key_value_index]));
+}
+
+byte GetCmd(int id, int l){
+  byte key_value_index = key_lut[id];
+  return pgm_read_byte(&(cmd[l][key_value_index]));
+}
+
+void SetSticky(bool state){
+  sticky = state;
+  if (state){
+    digitalWrite(18, HIGH);
+  }
+  else {
+    digitalWrite(18, LOW);
   }
 }
 
@@ -300,21 +336,21 @@ void MacroAction(int _cmd, int id, uint8_t keyvalue, bool release){
   if (_cmd == 0){
     Serial.println("Error: function MacroAction called with _cmd=0");
   } 
-  else if (_cmd == 1){
-    Macro1(release, 1);
-  } else if (_cmd == 2){
-    Macro1(release, 2);
-  } else if (_cmd == 6){
-    Macro1(release, 3);
+  else if (_cmd == SETLAYER1 || _cmd == SETLAYER2 || _cmd == SETLAYER3 || _cmd == SETLAYER4){
+    if (_cmd == SETLAYER4){
+      MacroSetStickyLayer(release, _cmd);
+    } else {
+      MacroSetLayer(release, _cmd);
+    }
   } 
-  else if (_cmd == 4){
-    Macro4(release, id, keyvalue);
-  } else if (_cmd == 5){
-    Macro5(release, id, keyvalue);
-  } else if (_cmd == 7){
-    Macro7(release, id, keyvalue);
-  } else if (_cmd == 8){
-    MacroSetStickyLayer(release, 4);
+  else if (_cmd == PRTSTRING){
+    MacroPrintString(release, id, keyvalue);
+  } else if (_cmd == KEYCOMBO){
+    MacroKeyCombo(release, id, keyvalue);
+  } else if (_cmd == SHIFTKEYV){
+    MacroShiftKeyValue(release, id, keyvalue);
+  } else if (_cmd == HYPER){
+    MacroHyperKeyValue(release, id, keyvalue);
   } else {
     Serial.println("CMD unknown @MacroAction");
     Serial.println(_cmd, DEC);
@@ -322,7 +358,7 @@ void MacroAction(int _cmd, int id, uint8_t keyvalue, bool release){
 }
 
 // Switch layers
-void Macro1(bool release, int layer_id){
+void MacroSetLayer(bool release, int layer_id){
   if (release){
     if (sticky == 0){
       layer = 0;
@@ -346,24 +382,24 @@ void MacroSetStickyLayer(bool release, int layer_id){
 }
 
 // Print strings
-void Macro4(bool release, int id, uint8_t keyvalue){
+void MacroPrintString(bool release, int id, uint8_t keyvalue){
   if (release){
     return;
   }
 
   //const uint8_t keyvalue = key_values[layer][id]; 
-  if (keyvalue == '0')
+  if (keyvalue == STR_ADM_USR)
   {
     Keyboard.print(USERNM1);
     Keyboard.write(KEY_TAB);
   } 
   
-  else if (keyvalue == '1')
-  {
+  else if (keyvalue == STR_ADM_PWD)
+  { 
     //Keyboard.print(PASSWD1);
     for(int i =0; i < strlen(PASSWD1); i++ ) {
       char c = PASSWD1[i];
-      if (i == 0 || i == 8){
+      if (i == 0 || i == 10){
         Keyboard.press(KEY_LEFT_SHIFT); delay(10);
         Keyboard.write(c); delay(10);
         Keyboard.release(KEY_LEFT_SHIFT); delay(10);
@@ -375,18 +411,18 @@ void Macro4(bool release, int id, uint8_t keyvalue){
     Keyboard.write(KEY_RETURN);
   } 
   
-  else if (keyvalue == '2')
+  else if (keyvalue == STR_KA_USER)
   {
     Keyboard.print(USERNM2);
     Keyboard.write(KEY_TAB);
   } 
   
-  else if (keyvalue == '3')
+  else if (keyvalue == STR_KA_PWD)
   {
     //Keyboard.print(PASSWD2);
     for(int i =0; i < strlen(PASSWD2); i++ ) {
       char c = PASSWD2[i];
-      if (i == 0 || i == 8){
+      if (i == 0 || i == 10){
         Keyboard.press(KEY_LEFT_SHIFT); delay(10);
         Keyboard.write(c); delay(10);
         Keyboard.release(KEY_LEFT_SHIFT); delay(10);
@@ -398,7 +434,7 @@ void Macro4(bool release, int id, uint8_t keyvalue){
     Keyboard.write(KEY_RETURN);
   } 
   
-  else if (keyvalue == '4')
+  else if (keyvalue == STR_KP_PWD)
   {
     //Keyboard.print(PASSWD3);
     for(int i =0; i < strlen(PASSWD3); i++ ) {
@@ -429,7 +465,7 @@ void Macro4(bool release, int id, uint8_t keyvalue){
 }
 
 // Key combos
-void Macro5(bool release, int id, uint8_t keyvalue){
+void MacroKeyCombo(bool release, int id, uint8_t keyvalue){
   if (release){
     return;
   }
@@ -467,12 +503,12 @@ void Macro5(bool release, int id, uint8_t keyvalue){
       Keyboard.release(KEY_LEFT_SHIFT); delay(1);
       Keyboard.release(KEY_LEFT_CTRL);
     }
-    else if (keyvalue == '1'){                     // ctrl+insert        
+    else if (keyvalue == TERM_COPY){                     // ctrl+insert        1
       Keyboard.press(KEY_LEFT_CTRL); delay(5);
       Keyboard.write(KEY_INSERT); delay(5);
       Keyboard.release(KEY_LEFT_CTRL);
     } 
-    else if (keyvalue == '2'){                     // shift+insert
+    else if (keyvalue == TERM_PASTE){                     // shift+insert      2
       Keyboard.press(KEY_LEFT_SHIFT); delay(5);
       Keyboard.write(KEY_INSERT); delay(5);
       Keyboard.release(KEY_LEFT_SHIFT);
@@ -497,7 +533,7 @@ void Macro5(bool release, int id, uint8_t keyvalue){
       Keyboard.write(KEY_RETURN); delay(1);
       Keyboard.release(KEY_LEFT_CTRL);
     } 
-    else if (keyvalue == S2H){                     // select home
+    else if (keyvalue == SELECT2HOME){                     // select home
       Keyboard.press(KEY_LEFT_SHIFT); delay(5);
       Keyboard.write(KEY_HOME); delay(5);
       Keyboard.release(KEY_LEFT_SHIFT);
@@ -517,7 +553,7 @@ void Macro5(bool release, int id, uint8_t keyvalue){
       Keyboard.write(';'); delay(5);
       Keyboard.release(KEY_LEFT_SHIFT);
     }
-    else if (keyvalue == MC1){                     // ', '
+    else if (keyvalue == COM001){                     // ', '
       Keyboard.write(','); delay(5);
       Keyboard.write(' '); delay(5);
     }
@@ -538,7 +574,7 @@ void Macro5(bool release, int id, uint8_t keyvalue){
 }
 
 // press shift before and after the keystroke
-void Macro7(bool release, int id, uint8_t keyvalue){
+void MacroShiftKeyValue(bool release, int id, uint8_t keyvalue){
   if (release){
     return;
   }
@@ -547,5 +583,22 @@ void Macro7(bool release, int id, uint8_t keyvalue){
     Keyboard.press(KEY_LEFT_SHIFT); delay(5);
     Keyboard.write(keyvalue); delay(5);
     Keyboard.release(KEY_LEFT_SHIFT);
+  }
+}
+
+// press ctrl + shift + gui + alt before and after the keystroke
+void MacroHyperKeyValue(bool release, int id, uint8_t keyvalue){
+  if (release){
+    return;
+  }
+  else {
+    //const uint8_t keyvalue = key_values[layer][id]; 
+    Keyboard.press(CTL); delay(5);
+    Keyboard.press(LSHIFT); delay(5); 
+    Keyboard.press(GUI); delay(5);
+    Keyboard.write(keyvalue); delay(5);
+    Keyboard.release(GUI); delay(5);
+    Keyboard.release(LSHIFT); delay(5);
+    Keyboard.release(CTL); delay(5);
   }
 }
