@@ -89,7 +89,7 @@ const PROGMEM uint8_t key_values[5][70] = {
     ESCAPE,       '1',             '2',           '3',           '4',       '5',         '6',                                 '7',          '8',          '9',          '-',          '-',          F11,          F12,
     TAB,          'q',             'w',           'f',           'p',       'g',        '\\',                                 ',',          'j',          'l',          'u',          'y',         '\'',          INS,
     BACKSP,       'a',             'r',           's',           't',       'd',         '[',                                 '`',          'h',          'n',          'e',          'i',          'o',         '\'',
-    LSHIFT,       'z',             'x',           'c',           'v',       'b',         ']',                                 '0',          'k',          'm',       COM001,         HOME,           UP,          END,
+    LSHIFT,       'z',             'x',           'c',           'v',       'b',         ']',                                 '0',          'k',          'm',          ',',         HOME,           UP,          END,
     CTL,          ALT,             GUI,        RETURN,        OPTION,       ' ',         FN3,                              BACKSP,          FN1,       LSHIFT,          '.',         LEFT,         DOWN,        RIGHT,
   },
   { // layer 1 (right default)
@@ -109,7 +109,7 @@ const PROGMEM uint8_t key_values[5][70] = {
   { // layer 3 (pinky)
     ESCAPE,        '1',             F2,           '3',         '4',         '5',          '6',                                 '7',          '8',          '9',          '-',           F5,     VOL_DOWN,       VOL_UP,
     TAB,           'q',            'w',   STR_KCL_APL,         'p',         'g',         '\\',                                 ',',          'j',          'l',          'u',          'y',         '\'',          INS,
-    DEL,           ',',            '.',          '\'',        '\'', STR_KCL_DES,          ',',                                 '`',          '3',   STR_KUBENS,          'e',          'i',          'o',          FN3,
+    DEL,           '[',            ']',          '\'',        '\'', STR_KCL_DES,          ',',                                 '`',          '3',   STR_KUBENS,          'e',          'i',          'o',          FN3,
     LSHIFT,        'z',            'x',   STR_KUBECTL,         'v',         'b',          '.',                                 '0',  STR_KUBECTL,          'm',   STR_CD_GIT,          '.',           UP,          END,
     CTL,           ALT,            GUI,        RETURN,      OPTION,         ' ',          FN3,                              BACKSP,       RETURN,  MOVE_LIST_I,         HOME,         LEFT,         DOWN,        RIGHT,
   },
@@ -143,7 +143,7 @@ const PROGMEM byte cmd[5][70] = {
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
-    0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,     KEYCOMBO,            0,            0,            0,
+    0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
     0,            0,            0,            0,    SETLAYER2,            0,    SETLAYER3,                                   0,    SETLAYER1,            0,            0,            0,            0,            0,
   },
   { // layer 1 (right default)
