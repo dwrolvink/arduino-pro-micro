@@ -21,6 +21,7 @@ const uint8_t KEYVALUE_BLANK = '!';
 // Used to see whether a key is being pressed or released
 bool previously_pressed[5][72];
 bool previously_pressed_global[72];
+bool chord_invalidated[72];
 
 // (Re)name bytes so we can have a nice key grid below
 #define ESCAPE      0xB1
@@ -54,6 +55,7 @@ bool previously_pressed_global[72];
 #define FN1         '!'
 #define OPTION      '!'
 #define FN3         '!'
+#define FN4         '!'
 #define MAC         '!'
 
 // Macro magic numbers
@@ -90,7 +92,7 @@ const PROGMEM uint8_t key_values[5][70] = {
     TAB,          'q',             'w',           'f',           'p',       'g',        '\\',                                 ',',          'j',          'l',          'u',          'y',         '\'',          INS,
     BACKSP,       'a',             'r',           's',           't',       'd',         '[',                                 '`',          'h',          'n',          'e',          'i',          'o',         '\'',
     LSHIFT,       'z',             'x',           'c',           'v',       'b',         ']',                                 '0',          'k',          'm',          ',',         HOME,           UP,          END,
-    CTL,          ALT,             GUI,        RETURN,        OPTION,       ' ',         FN3,                              BACKSP,          FN1,       LSHIFT,          '.',         LEFT,         DOWN,        RIGHT,
+    CTL,          ALT,             GUI,        RETURN,        OPTION,       ' ',         FN3,                                 FN4,          FN1,       LSHIFT,          '.',         LEFT,         DOWN,        RIGHT,
   },
   { // layer 1 (right default)
     ESCAPE,         F1,             F2,           '3',         '4',         '5',         '6',                                 '7',          '8',          '9',          '-',           F5,          F11,          F12,
@@ -122,7 +124,6 @@ const PROGMEM uint8_t key_values[5][70] = {
   }
 };
 
-
 #define SETLAYER1   1
 #define SETLAYER2   2
 #define SETLAYER3   3
@@ -131,6 +132,7 @@ const PROGMEM uint8_t key_values[5][70] = {
 #define PRTSTRING   6
 #define SHIFTKEYV   7
 #define HYPER       8
+#define SETLYR4_S   9
 
 // This array lists which keys should be handled by macros, and if so by which one
 // 0 is normal keypress/keyrelease, nonzero is macros
@@ -144,7 +146,7 @@ const PROGMEM byte cmd[5][70] = {
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
-    0,            0,            0,            0,    SETLAYER2,            0,    SETLAYER3,                                   0,    SETLAYER1,            0,            0,            0,            0,            0,
+    0,            0,            0,            0,    SETLAYER2,            0,    SETLAYER3,                           SETLAYER4,    SETLAYER1,            0,            0,            0,            0,            0,
   },
   { // layer 1 (right default)
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
@@ -154,7 +156,7 @@ const PROGMEM byte cmd[5][70] = {
     0,            0,            0,            0,            0,            0,    SHIFTKEYV,                                   0,    SETLAYER1,            0,            0,            0,            0,            0,
   },
   { // layer 2 (option)
-    0,    SETLAYER4,            0,            0,            0,            0,            0,                           PRTSTRING,    PRTSTRING,    PRTSTRING,    PRTSTRING,    PRTSTRING,            0,            0,
+    0,    SETLYR4_S,            0,            0,            0,            0,            0,                           PRTSTRING,    PRTSTRING,    PRTSTRING,    PRTSTRING,    PRTSTRING,            0,            0,
     0,            0,            0,            0,    SHIFTKEYV,            0,            0,                                   0,            0,     KEYCOMBO,            0,            0,            0,            0,
     0,            0,            0,        HYPER,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
     0,            0,            0,            0,            0,            0,            0,                                   0,            0,            0,            0,            0,            0,            0,
@@ -271,7 +273,7 @@ void KeyPress(int id, uint8_t keyvalue, byte _cmd) {
     SetSticky(0);
   }
   if (layer == 4) {
-    Chord(id, 1, keyvalue);
+    Chord(id, 0, keyvalue);
   }
   else if (_cmd == 0) {
     // normal key press
@@ -289,27 +291,38 @@ void KeyPress(int id, uint8_t keyvalue, byte _cmd) {
 // You can also use Keyboard.releaseAll()
 void ReleaseKey(int id, uint8_t keyvalue)
 {
-  // if the physical key was pressed last round, and is released now, then
-  // go by each layer and find which virtual key was pressed, and release it
-  for (int l = 0; l < 5; l++) {
-    if (previously_pressed[l][id]) {
-
-      // deactivate previously_pressed
-      previously_pressed[l][id] = 0;
-
-      const byte c_cmd = GetCmd(id, l);
-
-      if (layer == 4) {
-        Chord(id, 1, keyvalue);
+  if (layer == 4 && id != 71) {
+    Serial.print("RELEASE ");
+    Serial.println(id);
+    Chord(id, 1, keyvalue);
+    for (int i = 0; i < 72; i++) {
+      if (previously_pressed_global[i]){
+        chord_invalidated[i] = 1;
       }
-      else if (c_cmd == 0) {                    // check if macro
-        // normal key release
-        if (keyvalue != KEYVALUE_BLANK) {
-          Keyboard.release(GetKeyVal(id, l));
+    }
+    chord_invalidated[id] = 0;
+    previously_pressed[4][id] = 0;
+  }
+  else {
+    // if the physical key was pressed last round, and is released now, then
+    // go by each layer and find which virtual key was pressed, and release it
+    for (int l = 0; l < 5; l++) {
+      if (previously_pressed[l][id]) {
+  
+        // deactivate previously_pressed
+        previously_pressed[l][id] = 0;
+  
+        const byte c_cmd = GetCmd(id, l);
+  
+        if (c_cmd == 0) {                    // check if macro
+          // normal key release
+          if (keyvalue != KEYVALUE_BLANK) {
+            Keyboard.release(GetKeyVal(id, l));
+          }
         }
-      }
-      else {
-        MacroAction(c_cmd, id, keyvalue, 1);
+        else {
+          MacroAction(c_cmd, id, keyvalue, 1);
+        }
       }
     }
   }
@@ -336,6 +349,9 @@ void SetSticky(bool state) {
 }
 
 void Chord(int id, bool release, uint8_t keyvalue) {
+  if (release == 0){
+    return;
+  }
   Serial.print("Chord ");
   Serial.print(id);
   Serial.print(", ");
@@ -346,10 +362,20 @@ void Chord(int id, bool release, uint8_t keyvalue) {
   print_str = String("");
 
   char buffer[3];
+  bool add_space = 1;
+  bool capitalize = 0;
 
   for (int i = 0; i < 72; i++) {
-    if (previously_pressed_global[i]) {
+    if ((i == id || previously_pressed_global[i]) && !chord_invalidated[i]) {
       if (i == 40) {
+        continue;
+      }
+      if (i == 62) {
+        add_space = 0;
+        continue;
+      }
+      if (i == 71) {
+        capitalize = 1;
         continue;
       }
       if (i < 10) {
@@ -361,159 +387,94 @@ void Chord(int id, bool release, uint8_t keyvalue) {
       }
     }
   }
+  Serial.print("Chordstr ");
   Serial.println(chord_str);
 
-  if (previously_pressed_global[40]) {
-    Keyboard.print(print_str);
-  }
-
-  if (chord_str == "1217") {
-    Keyboard.write('a');
-  }
-  else if (chord_str == "1725" || chord_str == "1516") {
-    Keyboard.write('b');
-  }
-  else if (chord_str == "1517") {
-    Keyboard.write('c');
-  }
-  else if (chord_str == "1724") {
-    Keyboard.write('d');
-  }
-  else if (chord_str == "2223") {
-    Keyboard.write('e');
-  }
-  else if (chord_str == "1721") {
-    Keyboard.write('f');
-  }
-  else if (chord_str == "1731" || chord_str == "1621") {
-    Keyboard.write('g');
-  }
-  else if (chord_str == "1222") {
-    Keyboard.write('h');
-  }
-  else if (chord_str == "1323") {
-    Keyboard.write('i');
-  }
-  else if (chord_str == "1122") {
-    Keyboard.write('j');
-  }
-  else if (chord_str == "0322") {
-    Keyboard.write('k');
-  }
-  else if (chord_str == "2022") {
-    Keyboard.write('l');
-  }
-  else if (chord_str == "1422") {
-    Keyboard.write('m');
-  }
-  else if (chord_str == "1322") {
-    Keyboard.write('n');
-  }
-  else if (chord_str == "0123" || chord_str == "1620") {
-    Keyboard.write('o');
-  }
-  else if (chord_str == "1730") {
-    Keyboard.write('p');
-  }
-  else if (chord_str == "1117") {
-    Keyboard.write('q');
-  }
-  else if (chord_str == "1317") {
-    Keyboard.write('r');
-  }
-  else if (chord_str == "1722") {
-    Keyboard.write('s');
-  }
-  else if (chord_str == "1723") {
-    Keyboard.write('t');
-  }
-  else if (chord_str == "2123" || chord_str == "1321") {
-    Keyboard.write('u');
-  }
-  else if (chord_str == "1617") {
-    Keyboard.write('v');
-  }
-  else if (chord_str == "1720") {
-    Keyboard.write('w');
-  }
-  else if (chord_str == "1417") {
-    Keyboard.write('x');
-  }
-  else if (chord_str == "1330") {
-    Keyboard.write('y');
-  }
-  else if (chord_str == "0317") {
-    Keyboard.write('z');
-  }
-
-  else if (chord_str == "2026") {
-    Keyboard.write('1');
-  }
-  else if (chord_str == "2126") {
-    Keyboard.write('2');
-  }
-  else if (chord_str == "2630") {
-    Keyboard.write('3');
-  }
-  else if (chord_str == "1326") {
-    Keyboard.write('4');
-  }
-  else if (chord_str == "2226") {
-    Keyboard.write('5');
-  }
-  else if (chord_str == "2326") {
-    Keyboard.write('6');
-  }
-  else if (chord_str == "1426") {
-    Keyboard.write('7');
-  }
-  else if (chord_str == "1526") {
-    Keyboard.write('8');
-  }
-  else if (chord_str == "1626") {
-    Keyboard.write('9');
-  }
-  else if (chord_str == "1826") {
-    Keyboard.write('0');
-  }
+  // t: 23
+  // he: 60
+  // re: 13
+  // a: 12
+  // y: 56
+  // s(e): 22 
+  // i: 49
+  // A* --> homophones : 26
   
-  else if (chord_str == "1121") {
-    WriteShiftedValue('/');                                              //  ?
+  if (chord_str == "23") { // t + he
+    print_chord("the", add_space, capitalize);
   }
-  else if (chord_str == "1823") {
-    WriteShiftedValue('\\');                                              //  |                                  
+  else if (chord_str == "13222360") { // t + he + re + s
+    print_chord("there's", add_space, capitalize);
   }
-
-  else if (chord_str == "0412" || chord_str == "1224") {                 // ctrl + a
-    Keyboard.press(KEY_LEFT_CTRL); delay(5);
-    Keyboard.write('a'); delay(5);
-    Keyboard.release(KEY_LEFT_CTRL);
+  else if (chord_str == "1322232660") { // t + he + re + s + A*
+    print_chord("theirs", add_space, capitalize);
   }
-  else if (chord_str == "1213" || chord_str == "2021" || chord_str == "2023") {
-    Keyboard.write(' ');
+  else if (chord_str == "132360") { // t + he + re
+    print_chord("there", add_space, capitalize);
   }
-  else if (chord_str == "2130") {
-    Keyboard.write(RETURN);
+  else if (chord_str == "235660") { // t + he + y
+    print_chord("they", add_space, capitalize);
   }
-  else if (chord_str == "1622") {
-    Keyboard.write('.');
+  else if (chord_str == "1360") { // he + re
+    print_chord("here", add_space, capitalize);
   }
-  else if (chord_str == "1316" || chord_str == "1315") {
-    Keyboard.write(',');
+  else if (chord_str == "1226") { // a + A*
+    print_chord("a", add_space, capitalize);
   }
-  else if (chord_str == "1223") {
-    Keyboard.write(BACKSP);
+  else if (chord_str == "1213") { // a + re
+    print_chord("are", add_space, capitalize);
   }
-
+  else if (chord_str == "1222") { // a + s
+    print_chord("as", add_space, capitalize);
+  }
+  else if (chord_str == "2249") { // i + s
+    print_chord("is", add_space, capitalize);
+  }  
+  else if (chord_str == "1223") { // a + t
+    print_chord("at", add_space, capitalize);
+  }
+  else if (chord_str == "5660") { // he + y
+    print_chord("hey", add_space, capitalize);
+  }
+  else if (chord_str == "265660") { // he + y + A*
+    print_chord("hay", add_space, capitalize);
+  }
+  else if (chord_str == "1356") { // re + y
+    print_chord("ray", add_space, capitalize);
+  }
 }
 
+void print_chord(char *str, bool add_space, bool capitalize) {
+
+  if (add_space){ 
+    Keyboard.write(' ');
+  }
+
+  int i=0;
+  if (capitalize){      // Capitalize first char
+    while(str[i]) { 
+      if (i == 0){
+        Keyboard.write(toupper((unsigned char) str[i]));
+      }
+      else {
+        Keyboard.write(str[i]);
+      }
+      i++;
+    }
+  }
+  else {                // normal print
+    while(str[i]) { 
+      Keyboard.write(str[i]);
+      i++;
+    }
+  }
+}
 
 void MacroAction(int _cmd, int id, uint8_t keyvalue, bool release) {
   if (_cmd == 0) {
     Serial.println("Error: function MacroAction called with _cmd=0");
   }
-  else if (_cmd == SETLAYER1 || _cmd == SETLAYER2 || _cmd == SETLAYER3 || _cmd == SETLAYER4) {
-    if (_cmd == SETLAYER4) {
+  else if (_cmd == SETLAYER1 || _cmd == SETLAYER2 || _cmd == SETLAYER3 || _cmd == SETLAYER4 || _cmd == SETLYR4_S) {
+    if (_cmd == SETLYR4_S) {
       MacroSetStickyLayer(release, _cmd);
     } else {
       MacroSetLayer(release, _cmd);
